@@ -1,0 +1,29 @@
+[package]
+name = "hirise_cnn"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+anyhow = "1"
+candle-core = "0.11"
+candle-nn = "0.11"
+clap = { version = "4", features = ["derive"] }
+image = { version = "0.25", default-features = false, features = ["jpeg", "png"] }
+rand = "0.9"
+rayon = "1"
+
+[features]
+default = []
+cuda = ["candle-core/cuda", "candle-nn/cuda"]
+
+# candle-core 0.11.0 with the upstream CUDA conv2d fix backported (see the "[hirise_cnn]"
+# comment in vendor/candle-core/src/cuda_backend/mod.rs). Drop once a release includes it.
+[patch.crates-io]
+candle-core = { path = "vendor/candle-core" }
+
+[profile.release]
+debug = false
+
+# Image decoding and tensor ops are painfully slow unoptimized; keep dev builds usable.
+[profile.dev.package."*"]
+opt-level = 3
